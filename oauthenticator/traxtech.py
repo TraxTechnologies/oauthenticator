@@ -30,9 +30,9 @@ class TraxOAuth2Mixin(OAuth2Mixin):
     Addapted from TraxOAuth2Mixin
     https://github.com/tornadoweb/tornado/blob/master/tornado/auth.py#L833
     """
-    _OAUTH_AUTHORIZE_URL = "https://auth-stage.traxtech.com/oauth2/auth"
-    _OAUTH_ACCESS_TOKEN_URL = "https://auth-stage.traxtech.com/oauth2/token"
-    _OAUTH_USERINFO_URL = "https://auth-stage.traxtech.com/userinfo"
+    _OAUTH_AUTHORIZE_URL = "https://auth.traxtech.com/oauth2/auth"
+    _OAUTH_ACCESS_TOKEN_URL = "https://auth.traxtech.com/oauth2/token"
+    _OAUTH_USERINFO_URL = "https://auth.traxtech.com/userinfo"
     _OAUTH_NO_CALLBACKS = False
     _OAUTH_SETTINGS_KEY = 'trax_oauth'
 
