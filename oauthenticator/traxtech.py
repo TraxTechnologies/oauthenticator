@@ -6,9 +6,15 @@ Derived from the Google OAuth authenticator.
 
 import os
 import json
+import functools
 
 from tornado             import gen
-from tornado.auth        import OAuth2Mixin
+from tornado.auth        import (
+                            OAuth2Mixin,
+                            _auth_return_future,
+                            urllib_parse,
+                            AuthError,
+                            escape)
 from tornado.web         import HTTPError
 
 from traitlets           import Unicode
@@ -24,9 +30,9 @@ class TraxOAuth2Mixin(OAuth2Mixin):
     Addapted from TraxOAuth2Mixin
     https://github.com/tornadoweb/tornado/blob/master/tornado/auth.py#L833
     """
-    _OAUTH_AUTHORIZE_URL = "https://auth.traxtech.com/oauth2/auth"
-    _OAUTH_ACCESS_TOKEN_URL = "https:///auth.traxtech.com/auth2/token"
-    _OAUTH_USERINFO_URL = "https://auth.traxtech.com/userinfo"
+    _OAUTH_AUTHORIZE_URL = "https://auth-stage.traxtech.com/oauth2/auth"
+    _OAUTH_ACCESS_TOKEN_URL = "https://auth-stage.traxtech.com/oauth2/token"
+    _OAUTH_USERINFO_URL = "https://auth-stage.traxtech.com/userinfo"
     _OAUTH_NO_CALLBACKS = False
     _OAUTH_SETTINGS_KEY = 'trax_oauth'
 
@@ -71,7 +77,7 @@ class TraxLoginHandler(OAuthLoginHandler, TraxOAuth2Mixin):
         )
 
         redirect_uri = self.authenticator.oauth_callback_url or guess_uri
-        self.log.info('redirect_uri: %r', redirect_uri)
+        self.log.info('redirect_uri: %r %s', redirect_uri, self.authenticator.client_id)
 
         self.authorize_redirect(
             redirect_uri=redirect_uri,
@@ -87,7 +93,7 @@ class TraxOAuthHandler(OAuthCallbackHandler, TraxOAuth2Mixin):
             'secret': self.authenticator.client_secret,
             'scope': ['openid', 'email']
         }
-        self.log.debug('google: settings: "%s"', str(self.settings['google_oauth']))
+        self.log.debug('trax: settings: "%s"', str(self.settings['trax_oauth']))
         # FIXME: we should verify self.settings['google_oauth']['hd']
 
         # "Cannot redirect after headers have been written" ?
@@ -133,7 +139,10 @@ class TraxOAuthenticator(OAuthenticator, TraxOAuth2Mixin):
         http_client = handler.get_auth_http_client()
 
         response = yield http_client.fetch(
-            self._OAUTH_USERINFO_URL + '?access_token=' + access_token
+            self._OAUTH_USERINFO_URL,
+            method='POST', body=urllib_parse.urlencode({
+                'access_token': access_token
+            })
         )
 
         if not response:
