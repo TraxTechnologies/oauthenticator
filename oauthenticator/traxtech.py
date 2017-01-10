@@ -9,6 +9,7 @@ import json
 import functools
 
 from tornado             import gen
+from tornado             import httpclient
 from tornado.auth        import (
                             OAuth2Mixin,
                             _auth_return_future,
@@ -16,13 +17,13 @@ from tornado.auth        import (
                             AuthError,
                             escape)
 from tornado.web         import HTTPError
-from tornado.concurrent import TracebackFuture, return_future, chain_future
+from tornado.concurrent  import TracebackFuture, return_future, chain_future
 
 from traitlets           import Unicode
 
 from jupyterhub.auth     import LocalAuthenticator
 from jupyterhub.utils    import url_path_join
-from tornado.httputil import url_concat
+from tornado.httputil    import url_concat
 
 from .oauth2 import OAuthLoginHandler, OAuthCallbackHandler, OAuthenticator
 
